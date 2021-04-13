@@ -11,7 +11,11 @@
     "@asoltys/liquidjs-lib": "^5.1.34",
     "bip32": "^2.0.6",
     "bip39": "^3.0.3",
+    "buffer-reverse": "^1.0.1",
+    "litecoinjs-lib": "https://github.com/asoltys/litecoinjs-lib",
+    "node-fetch": "^2.6.1",
     "nodemon": "^2.0.7",
+    "wretch": "^1.7.4",
     "ws": "^7.4.4",
     "zeromq": "^6.0.0-beta.6"
   }

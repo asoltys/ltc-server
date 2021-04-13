@@ -1,41 +1,66 @@
 const zmq = require("zeromq");
 const WebSocket = require("ws");
-const { address: Address, networks, Transaction } = require("bitcoinjs-lib")
+const wretch = require("wretch");
+const electrs = wretch().url("http://localhost:3012");
+const { address: Address, networks, Transaction } = require("litecoinjs-lib");
+const { createIssuance, pay } = require("./wallet");
 
 let subscribers = {};
+let asset;
 async function run() {
   wss = new WebSocket.Server({ port: 9090 });
 
   wss.on("connection", function connection(ws) {
-    ws.on("message", function incoming(message) {
+    ws.on("message", async function incoming(message) {
       try {
-        let { type, address } = JSON.parse(message)
-        console.log(type, address);
+        let { type, value } = JSON.parse(message);
+
         if (type === "subscribe") {
-          subscribers[address] = ws;
-        } 
-      } catch(e) {}
+          subscribers[value] = ws;
+        }
+
+        if (type === "send") {
+          let txid = await pay(value, asset);
+          ws.send(JSON.stringify({ type: "txid", value: txid }));
+        }
+
+        if (type === "mint") {
+          asset = await createIssuance({
+            domain: "litecoin.com",
+            name: "chikkun",
+            ticker: "CHIK",
+          });
+
+          ws.send(JSON.stringify({ type: "asset", value: asset }));
+        }
+      } catch (e) {
+        console.log(e);
+      }
     });
   });
 
   const sock = new zmq.Subscriber();
 
-  sock.connect("tcp://127.0.0.1:18703");
+  sock.connect("tcp://127.0.0.1:18705");
   sock.subscribe("rawtx");
 
   for await (const [topic, msg] of sock) {
-    let hex = msg.toString('hex');
+    try {
+    let hex = msg.toString("hex");
 
-    let tx = Transaction.fromHex(hex)
+    let tx = Transaction.fromHex(hex);
     for (let i = 0; i < tx.outs.length; i++) {
       let { script, value } = tx.outs[i];
-      let address = Address.fromOutputScript(script, networks['litereg']);
+      if (!script) continue;
+      let address = Address.fromOutputScript(script, networks["litecoin"]);
 
       if (subscribers[address]) {
-        console.log("sending", value);
         subscribers[address].send(JSON.stringify({ type: "payment", value }));
-      } 
+      }
     }
+    } catch(e) {
+      // console.log(e);
+    } 
   }
 }
 
