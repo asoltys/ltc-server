@@ -18,5 +18,9 @@
     "wretch": "^1.7.4",
     "ws": "^7.4.4",
     "zeromq": "^6.0.0-beta.6"
+  },
+  "devDependencies": {
+    "pino-pretty": "^4.7.1",
+    "pm2": "^4.5.6"
   }
 }

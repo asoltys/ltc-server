@@ -12,18 +12,18 @@ const {
 const wretch = require("wretch");
 const fetch = require("node-fetch");
 wretch().polyfills({ fetch });
-const liquid = wretch().url("http://admin1:123@localhost:7045");
-const electrs = wretch().url("http://localhost:3012");
+const electrs = wretch().url("https://blockstream.info/liquid/api");
 const reverse = require("buffer-reverse");
 
-const BTC = "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225";
+// const BTC = "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225";
+const BTC = "6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d";
 const DUST = 1000;
 const FEE = 300;
 const MNEMONIC =
-  "garbage acid outside pave steel plastic car business keep vocal connect include";
+  "aspect acid outside pave steel plastic car business keep vocal connect include";
 
 // const network = networks.liquid;
-const network = networks.regtest;
+const network = networks.liquid;
 
 const path = "m/84'/0'/0'/0/0";
 
@@ -47,7 +47,7 @@ const fund = async (p, out, asset, amount, sighashType = 1) => {
 
   while (total < amount) {
     if (i >= utxos.length) {
-      throw { message: "Insufficient funds", amount, asset, total };
+      throw { message: "Insufficient funds", amount, asset, total, address };
     }
     total += utxos[i].value;
     i++;

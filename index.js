@@ -1,7 +1,7 @@
 const zmq = require("zeromq");
 const WebSocket = require("ws");
 const wretch = require("wretch");
-const electrs = wretch().url("http://localhost:3012");
+const electrs = wretch().url("https://blockstream.info/liquid/api");
 const { address: Address, networks, Transaction } = require("litecoinjs-lib");
 const { createIssuance, pay } = require("./wallet");
 
@@ -25,6 +25,7 @@ async function run() {
         }
 
         if (type === "mint") {
+          console.log("minting...");
           asset = await createIssuance({
             domain: "litecoin.com",
             name: "chikkun",
